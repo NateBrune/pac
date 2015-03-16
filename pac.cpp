@@ -115,15 +115,30 @@ char Pad(char *input, char *output){
 	}
 }
 
-int main()
+int main( int argc, const char *argv[])
 {
-  char str[]={"1"};
-  char padded[strlen(str)+9] = {0};
-  Pad(str, padded);
-  cout << "Padded String: ";
-  cout << padded << "\n";
+  if(argc<1){
+    cout << "Usage: pac \"Example Message\"\n";
+  }
+  string msg = argv[1];
+  cout << "Original Message: ";
+  cout << msg << "\n";
+  msg.append(":!:");
+  //cout << msg.length() << "\n";
+  if(msg.length()%8!=0)
+  {
+    int times=msg.length()%8;
+    times=8-times;
+    //cout << "Times: " << times << "\n";
+    for(int i = 0; i<times; i++){
+     msg.append("0");
+     //cout << msg << "\n";
+     }
+  }
+  char str[msg.length()+1] = {0};
+  size_t length = msg.copy(str, msg.length(), 0);
+  str[length+1]='\0';
   int len=strlen(str)+1; // length of the string including null character
-
   StringCrypt(str,len,true);
 
   cout <<"Encrypted string: ";
@@ -135,7 +150,11 @@ int main()
 
   cout <<"Decrypted string: ";
   for(int i = 0; i<sizeof(str)-1;i++){
-  	cout <<str[i];
+  	if(str[i] == ':' && str[i+1]=='!' && str[i+2]==':'){
+      break;
+    }
+    cout <<str[i];
+
   }
   cout<<"\n";
 }
