@@ -11,8 +11,23 @@ using namespace std;
 unsigned int key[4]={0xFDA5,0xD54E,0xFC00,0xB55A}; // encryption key
 
 #define BLOCK_SIZE 8
-
-
+/*
+int copy(string file1, string file2){
+  register int filekey;
+  
+  FILE *fp1, *fp2;
+  fp1 = fopen(file1);
+  fp2 = fopen(file2);
+  
+  while ((filekey = fgetc(fp1)) != EOF)
+   {
+    fputc(filekey, fp2);
+   }
+  fclose(fp1); fclose(fp2);
+  
+ return 0;
+}
+*/
 void xtea_encipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key[4]) {
     unsigned int i;
     uint32_t v0=v[0], v1=v[1], sum=0, delta=0x9E3779B9;
@@ -100,5 +115,5 @@ int main( int argc, const char *argv[])
      key[2] = ukey.c_str()[2];
      key[3] = ukey.c_str()[3];
   }
-  FileCrypt(filepath, true);
+  FileCrypt(argv[1], false);
 }

@@ -1,10 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <sys/stat.h>
 using namespace std;
 
 
@@ -78,27 +75,68 @@ void FileCrypt(string filename,bool encrypt)
     }
   file.close();
 }
+void StringCrypt(char *inout,int len,bool encrypt)
+{
+  for(int i=0;i<len/BLOCK_SIZE;i++)
+    {
+      if(encrypt)
+          xtea_encipher(32,(uint32_t*)(inout+(i*BLOCK_SIZE)),key);
+      else
+          xtea_decipher(32,(uint32_t*)(inout+(i*BLOCK_SIZE)),key);
+    }
+  if(len%BLOCK_SIZE!=0)
+    {
+        int mod=len%BLOCK_SIZE;
+        int offset=(len/BLOCK_SIZE)*BLOCK_SIZE;
+        char data[BLOCK_SIZE];
+        memcpy(data,inout+offset,mod);
+
+        if(encrypt)
+            xtea_encipher(32,(uint32_t*)data,key);
+        else
+            xtea_decipher(32,(uint32_t*)data,key);
+
+        memcpy(inout+offset,data,mod);
+    }
+}
 
 int main( int argc, const char *argv[])
 {
-  if(argc<2){
-    cout << "Usage: " << argv[0] << "[file] [optional 4 byte key]\n";
-    return 0;
+  if(argc<1){
+    cout << "Usage: " << argv[0] << "\"Example Message\"\n";
   }
-  string filepath = argv[1];
-  if(argc>2){
-    cout << "argc = "<<argc<<endl;
-    cout << "argv[2] = " << argv[2] << endl;
-    string ukey = argv[2];
-    cout << "ukey = " << ukey << endl;
-    if(ukey.length()>4 || ukey.length()<4){
-      cout << "Key must be 4 bytes long\n";
-      return 0;
+  string msg = argv[1];
+  cout << "Original Message: ";
+  cout << msg << "\n";
+  msg.append(":!:");
+  if(msg.length()%8!=0)
+  {
+    int times=msg.length()%8;
+    times=8-times;
+    for(int i = 0; i<times; i++){
+     msg.append("0");
+     }ss
+  }
+  char str[msg.length()+1] = {0};
+  size_t length = msg.copy(str, msg.length(), 0);
+  str[length+1]='\0';
+  int len=strlen(str)+1; // length of the string including null character
+  StringCrypt(str,len,true);
+
+  cout <<"Encrypted string: ";
+  for(int i=0;i<len;i++)
+      cout <<str[i];
+  cout <<endl;
+
+  StringCrypt(str,len,false);
+
+  cout <<"Decrypted string: ";
+  for(int i = 0; i<sizeof(str)-1;i++){
+  	if(str[i] == ':' && str[i+1]=='!' && str[i+2]==':'){
+      break;
     }
-     key[0] = ukey.c_str()[0];
-     key[1] = ukey.c_str()[1];
-     key[2] = ukey.c_str()[2];
-     key[3] = ukey.c_str()[3];
+    cout <<str[i];
+
   }
-  FileCrypt(filepath, true);
+  cout<<"\n";
 }
