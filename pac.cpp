@@ -87,10 +87,10 @@ int main( int argc, const char *argv[])
   }
   string filepath = argv[1];
   if(argc>2){
-    cout << "argc = "<<argc<<endl;
-    cout << "argv[2] = " << argv[2] << endl;
+    //cout << "argc = "<<argc<<endl;
+    //cout << "argv[2] = " << argv[2] << endl;
     string ukey = argv[2];
-    cout << "ukey = " << ukey << endl;
+    //cout << "ukey = " << ukey << endl;
     if(ukey.length()>4 || ukey.length()<4){
       cout << "Key must be 4 bytes long\n";
       return 0;
@@ -100,5 +100,14 @@ int main( int argc, const char *argv[])
      key[2] = ukey.c_str()[2];
      key[3] = ukey.c_str()[3];
   }
+  fstream file(filepath.c_str(),ios::in | ios::out | ios::binary);
+  unsigned size;
+  file.seekg(0,ios::end);
+  file.write("p!3", 3);
+   size=file.tellg();
+  for(int i = size; (i)%8!=0; i++){
+    file.write("0", 1);
+  }
+  file.close();
   FileCrypt(filepath, true);
 }
