@@ -56,7 +56,7 @@ void FileCrypt(string filename,bool encrypt)
 
   if(!file)
     {
-      cout <<"Could not open file";
+      cout <<"Could not open file" << endl;
       return;
     }
 
@@ -123,56 +123,44 @@ int main( int argc, const char *argv[])
   int size = file.tellg();
   file.seekg(size-8, ios::beg);
   char data[8];
-
   file.read((char*)data, 8);
+  file.seekg(0, ios::beg);
   string Sdata= data;
-  if(Sdata.find("pac") != string::npos){
-    FileCrypt(filepath, false);
+  file.close();
+  if(Sdata.find("p!3") != string::npos){
+        remove(filepath.c_str());
+        register int filekey;
+        register int filekey2;
+        register int filekey3;
+        FILE *fp1, *fp2;
+        fp1 = fopen(tmppath.c_str(), "a+");
+        fp2 = fopen(filepath.c_str(), "a+");
+        
+        while ((filekey = fgetc(fp1)) != EOF)
+         {
+          if(filekey == 'p'){
+            if((filekey2 = fgetc(fp1)) == '!'){
+              if((filekey3 = fgetc(fp1)) == '3'){
+                break;
+              }
+              fputc(filekey, fp2);
+              fputc(filekey2, fp2);
+              fputc(filekey3, fp2);
+            }
+            fputc(filekey, fp2);
+            fputc(filekey2, fp2);
+          }
+          else{
+            fputc(filekey, fp2);
+          }
+         }
+        fclose(fp1); fclose(fp2);
+      remove(tmppath.c_str());
   }
   else{
     cout << "Decryption failed (Wrong passphrase?)" << endl;
-    file.close();
-    remove(tmppath);
+    remove(tmppath.c_str());
     return -1;
   }
-  
-
-  fstream file2(filepath.c_str(),ios::in | ios::out | ios::binary);
-  int n_blocks=size/64;
-  if(size%64!=0)
-      ++n_blocks;
-  unsigned pos;
-  for(int i=0;i<n_blocks;i++)
-    {
-      unsigned char finalData[64];
-      pos=file2.tellg();
-      file.read((char*)finalData,64); // read data block
-      for(int i = 0; i<64; i++){
-        if(finalData[i]=='p'){
-          cout << "Found : p" << endl;
-          if(finalData[i+1] == 'a'){
-            cout <<"Found : a"<< endl;
-            if(finalData[i+2] == 'c'){
-              cout <<"Found : c" << endl;
-              cout <<"Writing " << i-1 << " bytes of data to file" << endl;
-              file.seekp(pos);
-              file2.seekp(pos);
-              file2.write((char*)finalData, i-1);
-              break;
-            }
-          }
-        }
-        cout << "finalData[" << i << "]: " << finalData[i] << endl;
-        if(i==63){
-          cout << "Writing the full gambit... interesting behavior"<<endl;
-          file.seekp(pos);
-          file2.seekp(pos);
-          file2.write((char*)finalData, 64);
-          memset(finalData,0,64);
-        }
-      }
-    }
-    file2.close();
-    file.close();
-    remove(tmppath.c_str());
+  remove(tmppath.c_str());
 }
